@@ -1,4 +1,4 @@
-module webserver
+module github.com/khivuksergey/webserver
 
 go 1.22.0
 
