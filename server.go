@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/khivuksergey/webserver/logger"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-	"webserver/logger"
 )
 
 type Server interface {
