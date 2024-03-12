@@ -19,7 +19,7 @@ type LogMessage struct {
 	Action           string
 	Message          string
 	CustomMessage    *string
-	UserId           *int
+	UserId           *uint64
 	RequestGuid      *uuid.UUID
 	Data             any
 	AdditionalFields *map[string]any
