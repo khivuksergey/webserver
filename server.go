@@ -21,17 +21,17 @@ type Server interface {
 
 type ServerOptions struct {
 	//StopTimeoutMS int
-	UseLogger bool
+	//UseLogger bool
 }
 
 type server struct {
-	router        http.Handler
-	httpServer    *http.Server
-	port          int
-	stopTimeoutMS time.Duration
-	srvCh         chan error
-	options       ServerOptions
-	logger        logger.Logger
+	router      http.Handler
+	httpServer  *http.Server
+	port        int
+	stopTimeout time.Duration
+	srvCh       chan error
+	options     ServerOptions
+	logger      logger.Logger
 }
 
 func RunServer(server Server, quit *chan os.Signal) (err error) {
@@ -80,35 +80,35 @@ func NewServer(wsConfig *WebServerConfig, router http.Handler, logger logger.Log
 	srvCh := make(chan error, 1)
 
 	return &server{
-		router:        router,
-		httpServer:    httpServer,
-		port:          port,
-		stopTimeoutMS: stopTimeout,
-		srvCh:         srvCh,
-		options:       options,
-		logger:        logger,
+		router:      router,
+		httpServer:  httpServer,
+		port:        port,
+		stopTimeout: stopTimeout,
+		srvCh:       srvCh,
+		options:     options,
+		logger:      logger,
 	}
 }
 
 func (s *server) Start() (serverChannel chan error) {
-	if s.options.UseLogger {
-		action, message, customMessage := "ServerStart", "Start", fmt.Sprintf("Starting server on port %d", s.port)
-		s.logger.Info(logger.LogMessage{
-			Action:        action,
-			Message:       message,
-			CustomMessage: &customMessage,
-		})
-	}
+	//if s.options.UseLogger {
+	action, message, customMessage := "ServerStart", "Start", fmt.Sprintf("Starting server on port %d", s.port)
+	s.logger.Info(logger.LogMessage{
+		Action:        action,
+		Message:       message,
+		CustomMessage: &customMessage,
+	})
+	//}
 	go func() {
 		if err := s.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			if s.options.UseLogger {
-				action, message, customMessage := "ServerStart", "Start", fmt.Sprintf("Server start error: %v", err)
-				s.logger.Error(logger.LogMessage{
-					Action:        action,
-					Message:       message,
-					CustomMessage: &customMessage,
-				})
-			}
+			//if s.options.UseLogger {
+			action, message, customMessage := "ServerStart", "Start", fmt.Sprintf("Server start error: %v", err)
+			s.logger.Error(logger.LogMessage{
+				Action:        action,
+				Message:       message,
+				CustomMessage: &customMessage,
+			})
+			//}
 			s.srvCh <- err
 		}
 	}()
@@ -116,7 +116,7 @@ func (s *server) Start() (serverChannel chan error) {
 	return s.srvCh
 }
 func (s *server) Stop() error {
-	ctx, cancel := context.WithTimeout(context.Background(), s.stopTimeoutMS)
+	ctx, cancel := context.WithTimeout(context.Background(), s.stopTimeout)
 	defer cancel()
 
 	//stopHandlers := s.GetStopHandlers()
@@ -148,16 +148,16 @@ func (s *server) AddLogger(l logger.Logger) {
 }
 
 func (s *server) isLoggerMissing() bool {
-	return s.options.UseLogger && s.logger == nil
+	return s.logger == nil
 }
 
 func initServerSettings(wsConfig *WebServerConfig) (port int, stopTimeout time.Duration) {
 	if wsConfig == nil {
 		port = DefaultPort
-		stopTimeout = time.Duration(DefaultStopTimeoutMS) * time.Millisecond
+		stopTimeout = DefaultStopTimeout
 	} else {
 		port = wsConfig.Port
-		stopTimeout = time.Duration(wsConfig.StopTimeoutMS) * time.Millisecond
+		stopTimeout = wsConfig.StopTimeout
 	}
 	return
 }
