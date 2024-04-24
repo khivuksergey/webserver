@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"strings"
 	"time"
 )
@@ -15,7 +14,7 @@ type LogMessage struct {
 	UserId           *uint64
 	Data             any
 	AdditionalFields *map[string]any
-	RequestUuid      uuid.UUID
+	RequestUuid      string
 }
 
 func (m *LogMessage) String() string {
@@ -52,7 +51,7 @@ func (m *LogMessage) String() string {
 		builder.WriteString(fmt.Sprintf(" AdditionalFields: %v,", *m.AdditionalFields))
 	}
 
-	builder.WriteString(fmt.Sprintf(" RequestUuid: %s\n", m.RequestUuid.String()))
+	builder.WriteString(fmt.Sprintf(" RequestUuid: %s\n", m.RequestUuid))
 
 	return builder.String()
 }
