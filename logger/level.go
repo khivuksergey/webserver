@@ -1,5 +1,9 @@
 package logger
 
+import (
+	"strings"
+)
+
 type LogLevel uint8
 
 const (
@@ -9,3 +13,20 @@ const (
 	Error
 	Fatal
 )
+
+func GetLogLevel(levelStr string) LogLevel {
+	switch strings.ToUpper(levelStr) {
+	case "DEBUG":
+		return Debug
+	case "INFO":
+		return Info
+	case "WARN":
+		return Warn
+	case "ERROR":
+		return Error
+	case "FATAL":
+		return Fatal
+	default:
+		return Info
+	}
+}
