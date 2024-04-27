@@ -14,7 +14,7 @@ const (
 	Fatal
 )
 
-func GetLogLevel(levelStr string) LogLevel {
+func GetLogLevelFromString(levelStr string) LogLevel {
 	switch strings.ToUpper(levelStr) {
 	case "DEBUG":
 		return Debug

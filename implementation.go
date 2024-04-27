@@ -10,17 +10,16 @@ import (
 )
 
 type server struct {
-	router       http.Handler
 	httpServer   *http.Server
+	router       http.Handler
 	port         int
 	stopTimeout  time.Duration
 	stopHandlers *[]StopHandler
-	srvCh        chan error
-	options      *ServerOptions
 	logger       logger.Logger
+	srvCh        chan error
 }
 
-func NewServer(wsConfig *WebServerConfig, router http.Handler, options *ServerOptions) Server {
+func NewServer(wsConfig *WebServerConfig, router http.Handler) Server {
 	port, stopTimeout := initServerSettings(wsConfig)
 
 	httpServer := &http.Server{
@@ -31,12 +30,11 @@ func NewServer(wsConfig *WebServerConfig, router http.Handler, options *ServerOp
 	srvCh := make(chan error, 1)
 
 	return &server{
-		router:      router,
 		httpServer:  httpServer,
+		router:      router,
 		port:        port,
 		stopTimeout: stopTimeout,
 		srvCh:       srvCh,
-		options:     options,
 	}
 }
 
@@ -50,7 +48,7 @@ func (s *server) Start() (serverChannel chan error) {
 
 	go func() {
 		if err := s.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			action, message, customMessage := "ServerStart", "Start", fmt.Sprintf("Server start error: %v", err)
+			action, message, customMessage = "ServerStart", "Start", fmt.Sprintf("Server start error: %v", err)
 			s.logger.Error(logger.LogMessage{
 				Action:        action,
 				Message:       message,
@@ -68,10 +66,9 @@ func (s *server) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), s.stopTimeout)
 	defer cancel()
 
-	stopHandlers := s.getStopHandlers()
-	if stopHandlers != nil {
+	if s.stopHandlers != nil {
 		defer func() {
-			for _, handler := range *stopHandlers {
+			for _, handler := range *s.stopHandlers {
 				s.logger.Info(logger.LogMessage{
 					Action:  "StopHandlers",
 					Message: fmt.Sprintf("Stopping component %s", handler.Description),
@@ -106,10 +103,6 @@ func (s *server) IsLoggerMissing() bool {
 	return s.logger == nil
 }
 
-func (s *server) getStopHandlers() *[]StopHandler {
-	return s.stopHandlers
-}
-
 func initServerSettings(wsConfig *WebServerConfig) (port int, stopTimeout time.Duration) {
 	port = DefaultPort
 	stopTimeout = DefaultStopTimeout
@@ -123,8 +116,4 @@ func initServerSettings(wsConfig *WebServerConfig) (port int, stopTimeout time.D
 		}
 	}
 	return
-}
-
-func now() string {
-	return time.Now().Format("02/01/2006 15:04:05.000000")
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 type Server interface {
@@ -47,4 +48,8 @@ func RunServer(server Server, quit chan os.Signal) (err error) {
 	fmt.Printf("%s [SERVER] %s\n", now(), stopServerLogMessage)
 
 	return
+}
+
+func now() string {
+	return time.Now().Format("02/01/2006 15:04:05.000000")
 }
