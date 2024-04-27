@@ -1,6 +1,8 @@
 package webserver
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	DefaultPort        int           = 8080
@@ -16,10 +18,6 @@ var DefaultWebServerConfig = WebServerConfig{
 	},
 }
 
-type Configuration struct {
-	WebServer WebServerConfig
-}
-
 type WebServerConfig struct {
 	Port        int
 	StopTimeout time.Duration
@@ -29,4 +27,14 @@ type WebServerConfig struct {
 type RouterConfig struct {
 	UseLogger   bool
 	UseRecovery bool
+}
+
+type SwaggerConfig struct {
+	RoutePath   string
+	Version     string
+	Host        string
+	BasePath    string
+	Schemes     []string
+	Title       string
+	Description string
 }
