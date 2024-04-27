@@ -7,13 +7,15 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 type Server interface {
 	Start() chan error
 	Stop() error
-	AddLogger(logger.Logger)
-	AddStopHandlers(*[]StopHandler)
+	WithConfig(*ServerConfig) Server
+	AddLogger(logger.Logger) Server
+	AddStopHandlers(...*StopHandler) Server
 	IsLoggerMissing() bool
 }
 
@@ -47,4 +49,8 @@ func RunServer(server Server, quit chan os.Signal) (err error) {
 	fmt.Printf("%s [SERVER] %s\n", now(), stopServerLogMessage)
 
 	return
+}
+
+func now() string {
+	return time.Now().Format("02/01/2006 15:04:05.000000")
 }

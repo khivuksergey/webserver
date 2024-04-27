@@ -1,7 +1,7 @@
 package logger
 
 type Logger interface {
-	SetLevel(LogLevel)
+	SetLevel(LogLevel) Logger
 	Debug(LogMessage)
 	Info(LogMessage)
 	Warn(LogMessage)
