@@ -5,23 +5,23 @@ import (
 )
 
 const (
-	DefaultPort        int           = 8080
-	DefaultStopTimeout time.Duration = 5 * time.Second
+	DefaultPort        = 8080
+	DefaultStopTimeout = 5 * time.Second
 )
 
-var DefaultWebServerConfig = WebServerConfig{
+var DefaultServerConfig = ServerConfig{
 	Port:        DefaultPort,
 	StopTimeout: DefaultStopTimeout,
-	Router: RouterConfig{
-		UseLogger:   true,
-		UseRecovery: true,
-	},
 }
 
-type WebServerConfig struct {
+var DefaultRouterConfig = RouterConfig{
+	UseLogger:   false,
+	UseRecovery: true,
+}
+
+type ServerConfig struct {
 	Port        int
 	StopTimeout time.Duration
-	Router      RouterConfig
 }
 
 type RouterConfig struct {

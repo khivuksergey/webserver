@@ -13,8 +13,9 @@ import (
 type Server interface {
 	Start() chan error
 	Stop() error
-	AddLogger(logger.Logger)
-	AddStopHandlers(*[]StopHandler)
+	WithConfig(*ServerConfig) Server
+	AddLogger(logger.Logger) Server
+	AddStopHandlers(...*StopHandler) Server
 	IsLoggerMissing() bool
 }
 

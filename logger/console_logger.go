@@ -12,8 +12,9 @@ func NewConsoleLogger() Logger {
 	}
 }
 
-func (l *logger) SetLevel(level LogLevel) {
+func (l *logger) SetLevel(level LogLevel) Logger {
 	l.level = level
+	return l
 }
 
 func (l *logger) Debug(message LogMessage) {

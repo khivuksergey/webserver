@@ -17,18 +17,18 @@ type Router struct {
 	*echo.Echo
 }
 
-func NewEchoRouter(cfg *webserver.RouterConfig) *Router {
+func NewEchoRouter() *Router {
 	r := &Router{echo.New()}
+	return r
+}
 
-	if cfg != nil {
-		if cfg.UseLogger {
-			r.Use(echoMiddleware.Logger())
-		}
-		if cfg.UseRecovery {
-			r.Use(echoMiddleware.Recover())
-		}
+func (r *Router) WithConfig(cfg webserver.RouterConfig) *Router {
+	if cfg.UseLogger {
+		r.Use(echoMiddleware.Logger())
 	}
-
+	if cfg.UseRecovery {
+		r.Use(echoMiddleware.Recover())
+	}
 	return r
 }
 

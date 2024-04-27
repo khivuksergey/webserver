@@ -14,13 +14,13 @@ type server struct {
 	router       http.Handler
 	port         int
 	stopTimeout  time.Duration
-	stopHandlers *[]StopHandler
+	stopHandlers []*StopHandler
 	logger       logger.Logger
 	srvCh        chan error
 }
 
-func NewServer(wsConfig *WebServerConfig, router http.Handler) Server {
-	port, stopTimeout := initServerSettings(wsConfig)
+func NewServer(router http.Handler) Server {
+	port, stopTimeout := initServerSettings(nil)
 
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
@@ -36,6 +36,13 @@ func NewServer(wsConfig *WebServerConfig, router http.Handler) Server {
 		stopTimeout: stopTimeout,
 		srvCh:       srvCh,
 	}
+}
+
+func (s *server) WithConfig(config *ServerConfig) Server {
+	port, stopTimeout := initServerSettings(config)
+	s.httpServer.Addr = fmt.Sprintf(":%d", port)
+	s.stopTimeout = stopTimeout
+	return s
 }
 
 func (s *server) Start() (serverChannel chan error) {
@@ -66,9 +73,9 @@ func (s *server) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), s.stopTimeout)
 	defer cancel()
 
-	if s.stopHandlers != nil {
+	if len(s.stopHandlers) > 0 {
 		defer func() {
-			for _, handler := range *s.stopHandlers {
+			for _, handler := range s.stopHandlers {
 				s.logger.Info(logger.LogMessage{
 					Action:  "StopHandlers",
 					Message: fmt.Sprintf("Stopping component %s", handler.Description),
@@ -91,28 +98,30 @@ func (s *server) Stop() error {
 	return nil
 }
 
-func (s *server) AddLogger(logger logger.Logger) {
+func (s *server) AddLogger(logger logger.Logger) Server {
 	s.logger = logger
+	return s
 }
 
-func (s *server) AddStopHandlers(stopHandlers *[]StopHandler) {
+func (s *server) AddStopHandlers(stopHandlers ...*StopHandler) Server {
 	s.stopHandlers = stopHandlers
+	return s
 }
 
 func (s *server) IsLoggerMissing() bool {
 	return s.logger == nil
 }
 
-func initServerSettings(wsConfig *WebServerConfig) (port int, stopTimeout time.Duration) {
+func initServerSettings(config *ServerConfig) (port int, stopTimeout time.Duration) {
 	port = DefaultPort
 	stopTimeout = DefaultStopTimeout
 
-	if wsConfig != nil {
-		if wsConfig.Port > 0 {
-			port = wsConfig.Port
+	if config != nil {
+		if config.Port > 0 {
+			port = config.Port
 		}
-		if wsConfig.StopTimeout > time.Second {
-			stopTimeout = wsConfig.StopTimeout
+		if config.StopTimeout > time.Second {
+			stopTimeout = config.StopTimeout
 		}
 	}
 	return
